@@ -33,7 +33,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_clicked()
 {
     Serializing::Data DATRecord;
-
+    QString FullString;
     fstream inFile;
     //int value1;
     int posx;
@@ -94,22 +94,48 @@ textmnemo:string[255];*/
             }
         }
 
-        /*
         // 2 text string
         char charBuffer1[100];
-        char charBuffer2[255];
-        stream.read(charBuffer1, 100);
-        stream.read(charBuffer2, 255);
-        data.text = QString::fromLocal8Bit(charBuffer1);
+        //char charBuffer2[255];
+        /*
+        //stream.read(charBuffer1, 100);
+        //stream.read(charBuffer2, 255);
+        *data.text = QString::fromLocal8Bit(charBuffer1);
         data.textmnemo = QString::fromLocal8Bit(charBuffer2);
         */
 
         //inFile.read(reinterpret_cast<char*>(&TextVV), sizeof(TextVV));
-        DATRecord.text = "";
-        char charBuffer1 [100];
-        inFile.read(charBuffer1, 1);
-        inFile.read(charBuffer1, 100);
-        DATRecord.text = QString::fromLocal8Bit(charBuffer1);
+        //DATRecord.text = "";
+        //QString str;
+        //int8_t lenstr;
+        //char charBuffer1 [100];
+
+        int8_t dataLen = 0;
+        inFile.read(reinterpret_cast<char*>(&dataLen), sizeof(int8_t));
+        char inBuffer [1];
+        inFile.read(reinterpret_cast<char*>(&inBuffer), 100);
+
+        //strncpy(inStr, inBuffer, sizeof(inStr));
+
+        //QString str;
+        //char data[100]; //массив, содержащий строку произвольной длины
+        //длина этой самой строки в байтах
+        //QString str111;
+        //str111 = new QString(inBuffer);
+        //str111->truncate(dataLen);
+
+        FullString = QString::fromLocal8Bit(inBuffer);
+        FullString = FullString.mid(0, dataLen);
+        DATRecord.text = FullString;
+
+        //QString subString = OrStr.mid(1, dataLen);
+        //DATRecord.text = subString;
+        //DATRecord.text = str111[0];
+
+        //inFile.read(charBuffer1, 100);
+        //QString string(charBuffer1);
+        //DATRecord.text = str;
+        //DATRecord.text = QString::fromLocal8Bit(charBuffer1);
 
         /*toPos = inFile.tellg();
         if (toPos > 2) {
@@ -125,12 +151,23 @@ textmnemo:string[255];*/
         toPos += 3;
         inFile.seekg(toPos);
         }*/
+
         DATRecord.textmnemo = "";
-        char charBuffer2[255];
-        inFile.read(charBuffer1, 1);
-        inFile.read(charBuffer2, 255);
-        DATRecord.textmnemo = QString::fromLocal8Bit(charBuffer2);
-        inFile.read(charBuffer2, 3);
+        inFile.read(reinterpret_cast<char*>(&dataLen), sizeof(int8_t));
+        char inBuffer2[1];
+        inFile.read(reinterpret_cast<char*>(&inBuffer2), 258);
+
+        //inFile.read(charBuffer2, 255);
+        FullString = QString::fromLocal8Bit(inBuffer2);
+        if (dataLen==0)
+            FullString = "";
+        else
+            FullString = FullString.mid(0, dataLen);
+
+        DATRecord.textmnemo = FullString;
+
+        //DATRecord.textmnemo = QString::fromLocal8Bit(inBuffer2);
+        //inFile.read(charBuffer2, 3);
 
         //inFile.read(reinterpret_cast<char*>(&TestSymb), sizeof(TestSymb));
 

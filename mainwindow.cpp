@@ -10,6 +10,8 @@
 #include <QFile>
 #include <QTextCodec>
 #include <QDebug>
+#include <QPushButton>
+#include <QFileDialog>
 
 #include <QString>
 
@@ -23,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    connect(ui->loadFileButton, &QPushButton::clicked, this, &MainWindow::onLoadFileButtonClicked);
 }
 
 MainWindow::~MainWindow()
@@ -45,7 +48,7 @@ void MainWindow::on_pushButton_clicked()
     char16_t TestSymb;
     int InsR = 0;
     long long toPos;
-    inFile.open("d:\\Askmem_3\\NV\\data\\vv.dat", ios::binary | ios::in);
+    inFile.open(_datFile.toStdString(), ios::binary | ios::in);
     if (!inFile)
     {
         QMessageBox::critical(this, "Помилка файла", "Файл відсутній");
@@ -218,4 +221,15 @@ textmnemo:string[255];*/
     // Растягиваем последнюю колонку на всё доступное пространство
     ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
 
+    ui->tableWidget->resizeColumnsToContents();
+    ui->tableWidget->resizeRowsToContents();
+}
+
+void MainWindow::onLoadFileButtonClicked()
+{
+    static QString fileLocation = QDir::currentPath();
+    fileLocation = QFileDialog::getOpenFileName(this, "Load dat file",
+                                                QDir::currentPath(), "dat files (*.dat)");
+
+    _datFile = fileLocation;
 }

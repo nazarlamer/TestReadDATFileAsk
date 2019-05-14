@@ -46,6 +46,8 @@ void MainWindow::on_pushButton_clicked()
         return;
     }
 
+    ui->tableWidget->clear(); // clear widget data before fill its
+
     // Разрешаем выделение только одного элемента
     ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     // Разрешаем выделение построчно
@@ -57,8 +59,6 @@ void MainWindow::on_pushButton_clicked()
                                                 "KODV", "KODN", "KODAB", "ATTR", "TEXT", "TEXTMNEMO",
                                                 "TMNPX", "TMNPY", "IDSQL", "VVODIV", "VV1", "VV2",
                                                 "VV3", "VV4", "TUPZALEGN"});
-
-    ui->tableWidget->clear(); // clear widget data before fill its
 
     inFile.seekg(0);
     while(!inFile.eof())

@@ -95,7 +95,7 @@ textmnemo:string[255];*/
         }
 
         // 2 text string
-        char charBuffer1[100];
+        //char charBuffer1[100];
         //char charBuffer2[255];
         /*
         //stream.read(charBuffer1, 100);
@@ -110,6 +110,7 @@ textmnemo:string[255];*/
         //int8_t lenstr;
         //char charBuffer1 [100];
 
+        FullString = "";
         int8_t dataLen = 0;
         inFile.read(reinterpret_cast<char*>(&dataLen), sizeof(int8_t));
         char inBuffer [1];

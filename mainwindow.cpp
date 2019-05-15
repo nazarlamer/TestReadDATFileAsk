@@ -36,7 +36,7 @@ void MainWindow::on_pushButton_clicked()
     QString FullString;
     fstream inFile;
     //int value1;
-    int posx;
+    int SizeStr;
     //int idv;
     //char asdf [407];
     //char asdf1 [15];
@@ -114,6 +114,7 @@ textmnemo:string[255];*/
         int8_t dataLen = 0;
         inFile.read(reinterpret_cast<char*>(&dataLen), sizeof(int8_t));
         char inBuffer [1];
+        SizeStr = dataLen;
         inFile.read(reinterpret_cast<char*>(&inBuffer), 100);
 
         //strncpy(inStr, inBuffer, sizeof(inStr));
@@ -126,7 +127,7 @@ textmnemo:string[255];*/
         //str111->truncate(dataLen);
 
         FullString = QString::fromLocal8Bit(inBuffer);
-        FullString = FullString.mid(0, dataLen);
+        FullString = FullString.mid(0, SizeStr);
         DATRecord.text = FullString;
 
         //QString subString = OrStr.mid(1, dataLen);
@@ -156,14 +157,15 @@ textmnemo:string[255];*/
         DATRecord.textmnemo = "";
         inFile.read(reinterpret_cast<char*>(&dataLen), sizeof(int8_t));
         char inBuffer2[1];
+        SizeStr = dataLen;
         inFile.read(reinterpret_cast<char*>(&inBuffer2), 258);
 
         //inFile.read(charBuffer2, 255);
         FullString = QString::fromLocal8Bit(inBuffer2);
-        if (dataLen==0)
+        if (SizeStr==0)
             FullString = "";
         else
-            FullString = FullString.mid(0, dataLen);
+            FullString = FullString.mid(0, SizeStr);
 
         DATRecord.textmnemo = FullString;
 

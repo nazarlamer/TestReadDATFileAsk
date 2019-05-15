@@ -82,7 +82,7 @@ void MainWindow::on_pushButton_clicked()
         SizeStr = dataLen;
 
         char inBuffer [100];
-        inFile.read(reinterpret_cast<char*>(&inBuffer), 100);
+        inFile.read(inBuffer, 100);
         FullString = QString::fromLocal8Bit(inBuffer);
         FullString = FullString.mid(0, SizeStr);
         DATRecord.text = FullString;
@@ -91,7 +91,7 @@ void MainWindow::on_pushButton_clicked()
         inFile.read(reinterpret_cast<char*>(&dataLen), sizeof(int8_t));
         SizeStr = dataLen;
         char inBuffer2[258];
-        inFile.read(reinterpret_cast<char*>(&inBuffer2), 258);
+        inFile.read(inBuffer2, 258);
 
         FullString = QString::fromLocal8Bit(inBuffer2);
         if (SizeStr == 0)

@@ -8,6 +8,8 @@
 #include <fstream>
 #include <QDataStream>
 #include <QFile>
+#include <QFileDialog>
+#include <QDir>
 #include <QTextCodec>
 #include <QDebug>
 
@@ -23,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    connect(ui->loadFileButton, &QPushButton::clicked, this, &MainWindow::onLoadFileButtonClicked);
 }
 
 MainWindow::~MainWindow()
@@ -32,13 +35,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    Serializing::Data DATRecord;
-    QString FullString;
     fstream inFile;
-    int SizeStr;
-    int InsR = 0;
-
-    inFile.open("d:\\Askmem_3\\NV\\data\\vv.dat", ios::binary | ios::in);
+    inFile.open(_datFile.toStdString(), ios::binary | ios::in);
     if (!inFile)
     {
         QMessageBox::critical(this, "Помилка файла", "Файл відсутній");
@@ -57,64 +55,66 @@ void MainWindow::on_pushButton_clicked()
                                                 "TEXTMNEMO", "TMNPX", "TMNPY", "IDSQL", "VVODIV", "VV1", "VV2", "VV3", "VV4", "TUPZALEGN"});
     //////////////////////
 
+    Serializing::Data DATRecord;
+    const size_t bufferSize = 9;
+    int buffer[bufferSize] = {0};
+    QString FullString;
+    int SizeStr = 0;
+    int InsR = 0;
+
     inFile.seekg(0);
-    while(!inFile.eof()){
-        for (int var = 0; var < 9; ++var) {
-            int IntRead;
-            inFile.read(reinterpret_cast<char*>(&IntRead), sizeof(int));
-            switch (var) {
-                case 0: DATRecord.posx = IntRead; break;
-                case 1: DATRecord.posy = IntRead; break;
-                case 2: DATRecord.status = IntRead; break;
-                case 3: DATRecord.zalegn = IntRead; break;
-                case 4: DATRecord.nomer = IntRead; break;
-                case 5: DATRecord.kodv = IntRead; break;
-                case 6: DATRecord.kodn = IntRead; break;
-                case 7: DATRecord.kodab = IntRead; break;
-                case 8: DATRecord.attr = IntRead; break;
-            }
-        }
+    while(!inFile.eof())
+    {
+        inFile.read(reinterpret_cast<char*>(buffer), bufferSize * sizeof (int));
+        DATRecord.posx = buffer[0];
+        DATRecord.posy = buffer[1];
+        DATRecord.status = buffer[2];
+        DATRecord.zalegn = buffer[3];
+        DATRecord.nomer = buffer[4];
+        DATRecord.kodv = buffer[5];
+        DATRecord.kodn = buffer[6];
+        DATRecord.kodab = buffer[7];
+        DATRecord.attr = buffer[8];
 
         FullString = "";
         int8_t dataLen = 0;
         inFile.read(reinterpret_cast<char*>(&dataLen), sizeof(int8_t));
-        char inBuffer [1];
         SizeStr = dataLen;
-        inFile.read(reinterpret_cast<char*>(&inBuffer), 100);
 
+        char inBuffer [100];
+        inFile.read(inBuffer, 100);
         FullString = QString::fromLocal8Bit(inBuffer);
         FullString = FullString.mid(0, SizeStr);
         DATRecord.text = FullString;
 
         DATRecord.textmnemo = "";
         inFile.read(reinterpret_cast<char*>(&dataLen), sizeof(int8_t));
-        char inBuffer2[1];
         SizeStr = dataLen;
-        inFile.read(reinterpret_cast<char*>(&inBuffer2), 258);
+        char inBuffer2[258];
+        inFile.read(inBuffer2, 258);
 
         FullString = QString::fromLocal8Bit(inBuffer2);
-        if (SizeStr==0)
-            FullString = "";
+        if (SizeStr == 0)
+            FullString.clear();
         else
             FullString = FullString.mid(0, SizeStr);
 
         DATRecord.textmnemo = FullString;
 
-        for (int var = 0; var < 9; ++var) {
-            int IntRead;
-            inFile.read(reinterpret_cast<char*>(&IntRead), sizeof(int));
-            switch (var) {
-                case 0: DATRecord.tmnpx = IntRead; break;
-                case 1: DATRecord.tmnpy = IntRead; break;
-                case 2: DATRecord.idsql = IntRead; break;
-                case 3: DATRecord.vvodiv = IntRead; break;
-                case 4: DATRecord.vv1 = IntRead; break;
-                case 5: DATRecord.vv2 = IntRead; break;
-                case 6: DATRecord.vv3 = IntRead; break;
-                case 7: DATRecord.vv4 = IntRead; break;
-                case 8: DATRecord.tupzalegn = IntRead; break;
-            }
-        }
+        // clear buffer
+        for (int &i : buffer)
+            i = 0;
+
+        inFile.read(reinterpret_cast<char*>(buffer), bufferSize * sizeof (int));
+        DATRecord.tmnpx = buffer[0];
+        DATRecord.tmnpy = buffer[1];
+        DATRecord.idsql = buffer[2];
+        DATRecord.vvodiv = buffer[3];
+        DATRecord.vv1 = buffer[4];
+        DATRecord.vv2 = buffer[5];
+        DATRecord.vv3 = buffer[6];
+        DATRecord.vv4 = buffer[7];
+        DATRecord.tupzalegn = buffer[8];
 
         ui->tableWidget->insertRow(InsR);
         ui->tableWidget->setItem(InsR,0, new QTableWidgetItem((QString::number(DATRecord.posx))));
@@ -145,4 +145,13 @@ void MainWindow::on_pushButton_clicked()
 
     ui->tableWidget->resizeColumnsToContents();
     ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
+}
+
+void MainWindow::onLoadFileButtonClicked()
+{
+    static QString fileLocation = QDir::currentPath();
+    fileLocation = QFileDialog::getOpenFileName(this, "Load dat file",
+                                                QDir::currentPath(), "dat files (*.dat)");
+
+    _datFile = fileLocation;
 }

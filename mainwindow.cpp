@@ -81,18 +81,18 @@ void MainWindow::on_pushButton_clicked()
         FullString = "";
         int8_t dataLen = 0;
         inFile.read(reinterpret_cast<char*>(&dataLen), sizeof(int8_t));
-        char inBuffer [1];
         SizeStr = dataLen;
-        inFile.read(reinterpret_cast<char*>(&inBuffer), 100);
 
+        char inBuffer [100];
+        inFile.read(reinterpret_cast<char*>(&inBuffer), 100);
         FullString = QString::fromLocal8Bit(inBuffer);
         FullString = FullString.mid(0, SizeStr);
         DATRecord.text = FullString;
 
         DATRecord.textmnemo = "";
         inFile.read(reinterpret_cast<char*>(&dataLen), sizeof(int8_t));
-        char inBuffer2[1];
         SizeStr = dataLen;
+        char inBuffer2[258];
         inFile.read(reinterpret_cast<char*>(&inBuffer2), 258);
 
         FullString = QString::fromLocal8Bit(inBuffer2);

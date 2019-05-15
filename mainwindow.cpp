@@ -33,18 +33,11 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_clicked()
 {
     Serializing::Data DATRecord;
-
+    QString FullString;
     fstream inFile;
-    //int value1;
-    int posx;
-    //int idv;
-    //char asdf [407];
-    //char asdf1 [15];
-    char TextVV [102];
-    char TextMnemo [258];
-    char16_t TestSymb;
+    int SizeStr;
     int InsR = 0;
-    long long toPos;
+
     inFile.open("d:\\Askmem_3\\NV\\data\\vv.dat", ios::binary | ios::in);
     if (!inFile)
     {
@@ -60,24 +53,12 @@ void MainWindow::on_pushButton_clicked()
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setColumnCount(20);
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->tableWidget->setHorizontalHeaderLabels({"POSX", "POSY", "STATUS", "ZALEGN", "NOMER", "KODV", "KODN", "KODAB", "ATTR", "TEXT", "TEXTMNEMO",
-                                                "TMNPX", "TMNPY", "IDSQL", "VVODIV", "VV1", "VV2", "VV3", "VV4", "TUPZALEGN"});
+    ui->tableWidget->setHorizontalHeaderLabels({"POSX", "POSY", "STATUS", "ZALEGN", "NOMER", "KODV", "KODN", "KODAB", "ATTR", "TEXT",
+                                                "TEXTMNEMO", "TMNPX", "TMNPY", "IDSQL", "VVODIV", "VV1", "VV2", "VV3", "VV4", "TUPZALEGN"});
     //////////////////////
-
-/*
-kodn:integer;
-kodab:integer;
-attr:integer;
-text:string[100];
-textmnemo:string[255];*/
-
-    //inFile.read((char*)&value1, sizeof(value1));
-    //QMessageBox::about(this, "Значення", QString::number(value1));
 
     inFile.seekg(0);
     while(!inFile.eof()){
-    //while(inFile.read((char*)&posx, sizeof(posx))){
-        long long ppos = inFile.tellg();
         for (int var = 0; var < 9; ++var) {
             int IntRead;
             inFile.read(reinterpret_cast<char*>(&IntRead), sizeof(int));
@@ -94,50 +75,30 @@ textmnemo:string[255];*/
             }
         }
 
-        /*
-        // 2 text string
-        char charBuffer1[100];
-        char charBuffer2[255];
-        stream.read(charBuffer1, 100);
-        stream.read(charBuffer2, 255);
-        data.text = QString::fromLocal8Bit(charBuffer1);
-        data.textmnemo = QString::fromLocal8Bit(charBuffer2);
-        */
+        FullString = "";
+        int8_t dataLen = 0;
+        inFile.read(reinterpret_cast<char*>(&dataLen), sizeof(int8_t));
+        char inBuffer [1];
+        SizeStr = dataLen;
+        inFile.read(reinterpret_cast<char*>(&inBuffer), 100);
 
-        //inFile.read(reinterpret_cast<char*>(&TextVV), sizeof(TextVV));
-        DATRecord.text = "";
-        char charBuffer1 [100];
-        inFile.read(charBuffer1, 1);
-        inFile.read(charBuffer1, 100);
-        DATRecord.text = QString::fromLocal8Bit(charBuffer1);
+        FullString = QString::fromLocal8Bit(inBuffer);
+        FullString = FullString.mid(0, SizeStr);
+        DATRecord.text = FullString;
 
-        /*toPos = inFile.tellg();
-        if (toPos > 2) {
-        toPos += 2;
-        inFile.seekg(toPos);
-        }*/
-
-        //inFile.read(reinterpret_cast<char*>(&TestSymb), sizeof(TestSymb));
-        //inFile.read(reinterpret_cast<char*>(&TextMnemo), sizeof(TextMnemo));
-
-        /*toPos = inFile.tellg();
-        if (toPos > 2) {
-        toPos += 3;
-        inFile.seekg(toPos);
-        }*/
         DATRecord.textmnemo = "";
-        char charBuffer2[255];
-        inFile.read(charBuffer1, 1);
-        inFile.read(charBuffer2, 255);
-        DATRecord.textmnemo = QString::fromLocal8Bit(charBuffer2);
-        inFile.read(charBuffer2, 3);
+        inFile.read(reinterpret_cast<char*>(&dataLen), sizeof(int8_t));
+        char inBuffer2[1];
+        SizeStr = dataLen;
+        inFile.read(reinterpret_cast<char*>(&inBuffer2), 258);
 
-        //inFile.read(reinterpret_cast<char*>(&TestSymb), sizeof(TestSymb));
+        FullString = QString::fromLocal8Bit(inBuffer2);
+        if (SizeStr==0)
+            FullString = "";
+        else
+            FullString = FullString.mid(0, SizeStr);
 
-        /*toPos = inFile.tellg();
-        toPos += 359;
-        inFile.seekg(toPos);
-        */
+        DATRecord.textmnemo = FullString;
 
         for (int var = 0; var < 9; ++var) {
             int IntRead;
@@ -154,20 +115,6 @@ textmnemo:string[255];*/
                 case 8: DATRecord.tupzalegn = IntRead; break;
             }
         }
-
-        /*
-        if ((inFile.tellg()-ppos) > 434) {
-            toPos = inFile.tellg();
-            toPos -= (inFile.tellg()-ppos);
-            toPos += 432;
-            inFile.seekg(toPos);
-        }
-        */
-        //inFile.read(reinterpret_cast<char*>(&idv), sizeof(idv));
-        //inFile.read(reinterpret_cast<char*>(&asdf), sizeof(asdf));
-       // QMessageBox::about(this, "Значення", (QString::number(posx))+" "+(QString::number(inFile.tellg())));
-        //cout << aaa.posx << std::endl;
-        //cout << aaa.text << std::endl;
 
         ui->tableWidget->insertRow(InsR);
         ui->tableWidget->setItem(InsR,0, new QTableWidgetItem((QString::number(DATRecord.posx))));
@@ -194,28 +141,8 @@ textmnemo:string[255];*/
         InsR += 1;
     }
 
-    //ui->tableWidget->insertRow(0);
-    //ui->tableWidget->insertRow(1);
-    //ui->tableWidget->setItem(0,0, new QTableWidgetItem((QString::number(posx))));
-
-    /*
-    for (int var = 10350; var < 10400; ++var) {
-        ui->tableWidget->insertRow(InsR);
-        ui->tableWidget->setItem(InsR,1, new QTableWidgetItem((QString::number(var))));
-        inFile.seekg(var);
-        inFile.read(reinterpret_cast<char*>(&posx), sizeof(int));
-
-        ui->tableWidget->setItem(InsR,0, new QTableWidgetItem((QString::number(posx))));
-        InsR += 1;
-    }
-    */
     inFile.close();
 
-
-    //ui->tableWidget->setRowHeight(0,20);
-    //ui->tableWidget->setColumnWidth(0,20);
     ui->tableWidget->resizeColumnsToContents();
-    // Растягиваем последнюю колонку на всё доступное пространство
     ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
-
 }

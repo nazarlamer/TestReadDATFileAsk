@@ -8,6 +8,8 @@
 #include <fstream>
 #include <QDataStream>
 #include <QFile>
+#include <QFileDialog>
+#include <QDir>
 #include <QTextCodec>
 #include <QDebug>
 
@@ -145,4 +147,13 @@ void MainWindow::on_pushButton_clicked()
 
     ui->tableWidget->resizeColumnsToContents();
     ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
+}
+
+void MainWindow::onLoadFileButtonClicked()
+{
+    static QString fileLocation = QDir::currentPath();
+    fileLocation = QFileDialog::getOpenFileName(this, "Load dat file",
+                                                QDir::currentPath(), "dat files (*.dat)");
+
+    _datFile = fileLocation;
 }

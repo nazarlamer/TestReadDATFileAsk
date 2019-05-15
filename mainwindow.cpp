@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    connect(ui->loadFileButton, &QPushButton::clicked, this, &MainWindow::onLoadFileButtonClicked);
 }
 
 MainWindow::~MainWindow()
@@ -40,7 +41,7 @@ void MainWindow::on_pushButton_clicked()
     int SizeStr;
     int InsR = 0;
 
-    inFile.open("d:\\Askmem_3\\NV\\data\\vv.dat", ios::binary | ios::in);
+    inFile.open(_datFile.toStdString(), ios::binary | ios::in);
     if (!inFile)
     {
         QMessageBox::critical(this, "Помилка файла", "Файл відсутній");
